@@ -1,0 +1,33 @@
+trigger:
+- none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+
+- task: NodeTool@0
+  inputs:
+    versionSpec: '16.19.0'
+
+
+- script: |
+    echo "Installing packages"
+    sudo npm install -g aws-cdk
+  displayName: 'Installing aws cdk '
+
+- script: |
+    echo "Installing project dependencies"
+    sudo npm install
+    sudo npm run build
+  displayName: 'Installing project dependencies'
+
+- task: AWSShellScript@1
+  inputs:
+    awsCredentials: 'AWS DEV ACCOUNT'
+    regionName: 'eu-west-1'
+    scriptType: 'inline'
+    inlineScript: |
+      echo "Running validations"
+      cdk synth
+  displayName: 'Validating AWS CDK output'
